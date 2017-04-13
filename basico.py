@@ -4,7 +4,9 @@ import commands
 import sys
 import re
 import operator
+import sniff
 
+history = open("history.dat", "a")
 
 def split_line(l):
     tokens = re.split('\s+', l)
@@ -34,11 +36,13 @@ def total_libre():
         tokens = split_line(linea)
         #print tokens
         if tokens[0] == "Mem:":
-            total_l = float(tokens[3]) + float(tokens[6])
+            total_l = float(tokens[3]) + float(tokens[5])
     porcentaje = (total_l * 100 ) / float(archivos())
     proceso.stdout.close()
     print("% RAM LIBRE")
+    history.write("RAM|")
     print ("%.2f" % porcentaje)
+    history.write("%.2f" % porcentaje + "\n")
 
 def checkmem():
     total = commands.getoutput('free -m|grep Mem:|tr -s "'" "'" |cut -d "'" "'" -f 2')
@@ -52,10 +56,13 @@ def top_five():
     complete = p2.communicate()[0]
     topcinco = complete.splitlines()
     print("TOP 5 PROCESOS QUE CONSUMEN RAM")
+    history.write("T5RAM\n")
     print("user    PID   %Mem  Process")
     for x in topcinco:
         top5 = split_line(x)
         print(top5[0] + " " + top5[1] + " " + top5[3] + " " + top5[10])
+        history.write(top5[0] + "|" + top5[1] + "|" + top5[3] + "|" + top5[10] + "\n")
+
 
 def disk_performance(device):
     #print(device)
@@ -65,15 +72,17 @@ def disk_performance(device):
     disco_perf.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
     output = disco_perf2.communicate()[0]
     disk = output.splitlines()
+    history.write("DISKPERFORMANCE|CACHEREADS|")
     print("CACHE READS")
     for y in disk:
         x = split_line(y)
         if x[2] == "cached":
             print(x[10] + " MB/sec")
+            history.write(x[10] + "|MB/sec|BUFFERED|")
         else:
             print("BUFFERED")
             print(x[11] + " MB/sec")
-
+            history.write(x[11] + "|MB/sec\n")
 mem = checkmem()
 #call("clear")
 
@@ -83,10 +92,12 @@ def load_average():
     l1 = Popen(['uptime'], stdout = PIPE, stderr = PIPE)
     la = l1.stdout.readlines()
     print("LOAD AVERAGE")
+    history.write("LOADAVG|")
     for x in la:
         loadavg = split_line(x)
         if loadavg[7] == "average:":
             print(loadavg[8].strip(",") + " " + loadavg[9].strip(",") + " " + loadavg[10].strip(","))
+            history.write(loadavg[8].strip(",") + "|" + loadavg[9].strip(",") + "|" + loadavg[10].strip(",")+"\n")
         #print(loadavg[10].strip(","))
 
 def total_swap():
@@ -104,10 +115,12 @@ def total_swap():
     #porcentaje = (total_l * 100 ) / float(archivos())
     proceso.stdout.close()
     print("% SWAP LIBRE")
+    history.write("FREESWAP|")
     print ("%.2f" % pswap)
+    history.write("%.2f" % pswap + "\n")
 
 
-if sys.argv[1] != " ":
+if len(sys.argv) > 1:
 	disk_performance(sys.argv[1])
 archivos()
 total_libre()
@@ -137,3 +150,4 @@ print tokens[2]
 top_five()
 load_average()
 total_swap()
+history.close
