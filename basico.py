@@ -106,7 +106,9 @@ def total_swap():
     print("% SWAP LIBRE")
     print ("%.2f" % pswap)
 
-disk_performance(sys.argv[1])
+
+if sys.argv[1] != " ":
+	disk_performance(sys.argv[1])
 archivos()
 total_libre()
 
