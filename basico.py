@@ -78,7 +78,7 @@ def disk_performance(device):
         x = split_line(y)
         if x[2] == "cached":
             print(x[10] + " MB/sec")
-            history.write(x[10] + "|MB/sec|BUFFERED|")
+            history.write(device+"|"+x[10] + "|MB/sec|BUFFERED|")
         else:
             print("BUFFERED")
             print(x[11] + " MB/sec")
@@ -135,6 +135,7 @@ tokens = split_line(output)
 print("promedio % procesador libre")
 print tokens[7]
 p2.stdout.close()
+history.write("AVGFREECPU|" + tokens[7] + "\n")
 
 #from subprocess import call, PIPE, Popen
 p1 = Popen(["sar", "-w", "1", "2"], stdout=PIPE)
@@ -145,7 +146,7 @@ tokens = split_line(output)
 #print output
 print("PROMEDIO CONTEXT SWITCH")
 print tokens[2]
-
+history.write("AVGCONSWI|" + tokens[2] + "\n")
 
 top_five()
 load_average()
