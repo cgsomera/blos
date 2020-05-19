@@ -5,7 +5,7 @@ import sys
 import re
 import operator
 import sniff
-
+# agregando comentarios
 history = open("history.dat", "a")
 
 def split_line(l):
